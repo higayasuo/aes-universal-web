@@ -1,8 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { WebCbcCipher } from '../WebCbcCipher';
-import { NodeCbcCipher } from './NodeCbcCipher';
+import { NodeCbcCipher } from 'expo-aes-universal-node';
 import { CryptoModule } from 'expo-crypto-universal';
 import crypto from 'crypto';
+
+const keyConfigs = [
+  { enc: 'A128CBC-HS256' as const, keyBytes: 16 },
+  { enc: 'A192CBC-HS384' as const, keyBytes: 24 },
+  { enc: 'A256CBC-HS512' as const, keyBytes: 32 },
+] as const;
 
 describe('CbcCipher.decrypt', () => {
   let mockCryptoModule: CryptoModule;
@@ -24,11 +30,9 @@ describe('CbcCipher.decrypt', () => {
     nodeCipher = new NodeCbcCipher(mockCryptoModule);
   });
 
-  it.each(['A128CBC-HS256', 'A192CBC-HS384', 'A256CBC-HS512'] as const)(
-    'should produce the same result across all implementations for %s',
-    async (enc) => {
-      const keyBytes =
-        enc === 'A128CBC-HS256' ? 16 : enc === 'A192CBC-HS384' ? 24 : 32;
+  it.each(keyConfigs)(
+    'should produce the same result across all implementations for %j',
+    async ({ enc, keyBytes }) => {
       const cek = new Uint8Array(keyBytes * 2).fill(0xaa);
       const plaintext = new Uint8Array([1, 2, 3]);
       const aad = new Uint8Array([4, 5, 6]);
@@ -61,11 +65,9 @@ describe('CbcCipher.decrypt', () => {
     },
   );
 
-  it.each(['A128CBC-HS256', 'A192CBC-HS384', 'A256CBC-HS512'] as const)(
-    'should handle empty ciphertext consistently for %s',
-    async (enc) => {
-      const keyBytes =
-        enc === 'A128CBC-HS256' ? 16 : enc === 'A192CBC-HS384' ? 24 : 32;
+  it.each(keyConfigs)(
+    'should handle empty ciphertext consistently for %j',
+    async ({ enc, keyBytes }) => {
       const cek = new Uint8Array(keyBytes * 2).fill(0xaa);
       const plaintext = new Uint8Array(0);
       const aad = new Uint8Array([4, 5, 6]);
@@ -98,11 +100,9 @@ describe('CbcCipher.decrypt', () => {
     },
   );
 
-  it.each(['A128CBC-HS256', 'A192CBC-HS384', 'A256CBC-HS512'] as const)(
-    'should handle empty AAD consistently for %s',
-    async (enc) => {
-      const keyBytes =
-        enc === 'A128CBC-HS256' ? 16 : enc === 'A192CBC-HS384' ? 24 : 32;
+  it.each(keyConfigs)(
+    'should handle empty AAD consistently for %j',
+    async ({ enc, keyBytes }) => {
       const cek = new Uint8Array(keyBytes * 2).fill(0xaa);
       const plaintext = new Uint8Array([1, 2, 3]);
       const aad = new Uint8Array(0);
@@ -135,11 +135,9 @@ describe('CbcCipher.decrypt', () => {
     },
   );
 
-  it.each(['A128CBC-HS256', 'A192CBC-HS384', 'A256CBC-HS512'] as const)(
-    'should reject invalid tag for %s',
-    async (enc) => {
-      const keyBytes =
-        enc === 'A128CBC-HS256' ? 16 : enc === 'A192CBC-HS384' ? 24 : 32;
+  it.each(keyConfigs)(
+    'should reject invalid tag for %j',
+    async ({ enc, keyBytes }) => {
       const cek = new Uint8Array(keyBytes * 2).fill(0xaa);
       const plaintext = new Uint8Array([1, 2, 3]);
       const aad = new Uint8Array([4, 5, 6]);

@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { WebCbcCipher } from '../WebCbcCipher';
-import { NodeCbcCipher } from './NodeCbcCipher';
+import { NodeCbcCipher } from 'expo-aes-universal-node';
 import { CryptoModule } from 'expo-crypto-universal';
+
+const keyConfigs = [
+  { enc: 'A128CBC-HS256' as const, keyBytes: 16, cekLength: 32 },
+  { enc: 'A192CBC-HS384' as const, keyBytes: 24, cekLength: 48 },
+  { enc: 'A256CBC-HS512' as const, keyBytes: 32, cekLength: 64 },
+] as const;
 
 describe('CbcCipher.encrypt', () => {
   let mockCryptoModule: CryptoModule;
@@ -18,13 +24,9 @@ describe('CbcCipher.encrypt', () => {
     nodeCipher = new NodeCbcCipher(mockCryptoModule);
   });
 
-  it.each([
-    ['A128CBC-HS256', 32],
-    ['A192CBC-HS384', 48],
-    ['A256CBC-HS512', 64],
-  ] as const)(
-    'should produce the same result across all implementations for %s',
-    async (enc, cekLength) => {
+  it.each(keyConfigs)(
+    'should produce the same result across all implementations for %j',
+    async ({ enc, cekLength }) => {
       const cek = new Uint8Array(cekLength).fill(0xaa);
       const plaintext = new Uint8Array([1, 2, 3]);
       const aad = new Uint8Array([4, 5, 6]);
@@ -49,13 +51,9 @@ describe('CbcCipher.encrypt', () => {
     },
   );
 
-  it.each([
-    ['A128CBC-HS256', 32],
-    ['A192CBC-HS384', 48],
-    ['A256CBC-HS512', 64],
-  ] as const)(
-    'should handle empty plaintext consistently for %s',
-    async (enc, cekLength) => {
+  it.each(keyConfigs)(
+    'should handle empty plaintext consistently for %j',
+    async ({ enc, cekLength }) => {
       const cek = new Uint8Array(cekLength).fill(0xaa);
       const plaintext = new Uint8Array(0);
       const aad = new Uint8Array([4, 5, 6]);
@@ -80,13 +78,9 @@ describe('CbcCipher.encrypt', () => {
     },
   );
 
-  it.each([
-    ['A128CBC-HS256', 32],
-    ['A192CBC-HS384', 48],
-    ['A256CBC-HS512', 64],
-  ] as const)(
-    'should handle empty AAD consistently for %s',
-    async (enc, cekLength) => {
+  it.each(keyConfigs)(
+    'should handle empty AAD consistently for %j',
+    async ({ enc, cekLength }) => {
       const cek = new Uint8Array(cekLength).fill(0xaa);
       const plaintext = new Uint8Array([1, 2, 3]);
       const aad = new Uint8Array(0);

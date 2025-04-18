@@ -1,8 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { WebCbcCipher } from '../WebCbcCipher';
-import { NodeCbcCipher } from './NodeCbcCipher';
+import { NodeCbcCipher } from 'expo-aes-universal-node';
 import { CryptoModule } from 'expo-crypto-universal';
 import crypto from 'crypto';
+
+const keyConfigs = [
+  { enc: 'A128CBC-HS256' as const, keyBits: 128 },
+  { enc: 'A192CBC-HS384' as const, keyBits: 192 },
+  { enc: 'A256CBC-HS512' as const, keyBits: 256 },
+] as const;
 
 describe('CbcCipher.generateTag', () => {
   let mockCryptoModule: CryptoModule;
@@ -24,8 +30,8 @@ describe('CbcCipher.generateTag', () => {
     nodeCipher = new NodeCbcCipher(mockCryptoModule);
   });
 
-  it.each([{ keyBits: 128 }, { keyBits: 192 }, { keyBits: 256 }])(
-    'should produce the same result across all implementations for keyBits %j',
+  it.each(keyConfigs)(
+    'should produce the same result across all implementations for %j',
     async ({ keyBits }) => {
       const macRawKey = new Uint8Array(keyBits / 8).fill(0xaa);
       const macData = new Uint8Array([1, 2, 3]);
@@ -45,7 +51,7 @@ describe('CbcCipher.generateTag', () => {
     },
   );
 
-  it.each([{ keyBits: 128 }, { keyBits: 192 }, { keyBits: 256 }])(
+  it.each(keyConfigs)(
     'should handle key size %j consistently',
     async ({ keyBits }) => {
       const macRawKey = new Uint8Array(keyBits / 8).fill(0xaa);
@@ -66,8 +72,8 @@ describe('CbcCipher.generateTag', () => {
     },
   );
 
-  it.each([{ keyBits: 128 }, { keyBits: 192 }, { keyBits: 256 }])(
-    'should handle empty macData consistently for keyBits %j',
+  it.each(keyConfigs)(
+    'should handle empty macData consistently for %j',
     async ({ keyBits }) => {
       const macRawKey = new Uint8Array(keyBits / 8).fill(0xaa);
       const macData = new Uint8Array(0);

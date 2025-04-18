@@ -1,8 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { WebCbcCipher } from '../WebCbcCipher';
-import { NodeCbcCipher } from './NodeCbcCipher';
+import { NodeCbcCipher } from 'expo-aes-universal-node';
 import { CryptoModule } from 'expo-crypto-universal';
 import crypto from 'crypto';
+
+const keyConfigs = [
+  { enc: 'A128CBC-HS256' as const, keyBytes: 16 },
+  { enc: 'A192CBC-HS384' as const, keyBytes: 24 },
+  { enc: 'A256CBC-HS512' as const, keyBytes: 32 },
+] as const;
 
 describe('CbcCipher.decryptInternal', () => {
   let mockCryptoModule: CryptoModule;
@@ -24,84 +30,93 @@ describe('CbcCipher.decryptInternal', () => {
     nodeCipher = new NodeCbcCipher(mockCryptoModule);
   });
 
-  it('should produce the same result across all implementations', async () => {
-    const encRawKey = new Uint8Array(16).fill(0xaa);
-    const iv = new Uint8Array(16).fill(0x42);
-    const plaintext = new Uint8Array([1, 2, 3]);
+  it.each(keyConfigs)(
+    'should produce the same result across all implementations for %j',
+    async ({ keyBytes }) => {
+      const encRawKey = new Uint8Array(keyBytes).fill(0xaa);
+      const iv = new Uint8Array(16).fill(0x42);
+      const plaintext = new Uint8Array([1, 2, 3]);
 
-    // Encrypt using nodeCipher first
-    const ciphertext = await nodeCipher.encryptInternal({
-      encRawKey,
-      iv,
-      plaintext,
-    });
+      // Encrypt using nodeCipher first
+      const ciphertext = await nodeCipher.encryptInternal({
+        encRawKey,
+        iv,
+        plaintext,
+      });
 
-    const webResult = await webCipher.decryptInternal({
-      encRawKey,
-      iv,
-      ciphertext,
-    });
-    const nodeResult = await nodeCipher.decryptInternal({
-      encRawKey,
-      iv,
-      ciphertext,
-    });
+      const webResult = await webCipher.decryptInternal({
+        encRawKey,
+        iv,
+        ciphertext,
+      });
+      const nodeResult = await nodeCipher.decryptInternal({
+        encRawKey,
+        iv,
+        ciphertext,
+      });
 
-    expect(webResult).toEqual(nodeResult);
-    expect(webResult).toEqual(plaintext);
-  });
+      expect(webResult).toEqual(nodeResult);
+      expect(webResult).toEqual(plaintext);
+    },
+  );
 
-  it('should handle empty ciphertext consistently', async () => {
-    const encRawKey = new Uint8Array(16).fill(0xaa);
-    const iv = new Uint8Array(16).fill(0x42);
-    const plaintext = new Uint8Array(0);
+  it.each(keyConfigs)(
+    'should handle empty ciphertext consistently for %j',
+    async ({ keyBytes }) => {
+      const encRawKey = new Uint8Array(keyBytes).fill(0xaa);
+      const iv = new Uint8Array(16).fill(0x42);
+      const plaintext = new Uint8Array(0);
 
-    // Encrypt using nodeCipher first
-    const ciphertext = await nodeCipher.encryptInternal({
-      encRawKey,
-      iv,
-      plaintext,
-    });
+      // Encrypt using nodeCipher first
+      const ciphertext = await nodeCipher.encryptInternal({
+        encRawKey,
+        iv,
+        plaintext,
+      });
 
-    const webResult = await webCipher.decryptInternal({
-      encRawKey,
-      iv,
-      ciphertext,
-    });
-    const nodeResult = await nodeCipher.decryptInternal({
-      encRawKey,
-      iv,
-      ciphertext,
-    });
+      const webResult = await webCipher.decryptInternal({
+        encRawKey,
+        iv,
+        ciphertext,
+      });
+      const nodeResult = await nodeCipher.decryptInternal({
+        encRawKey,
+        iv,
+        ciphertext,
+      });
 
-    expect(webResult).toEqual(nodeResult);
-    expect(webResult).toEqual(plaintext);
-  });
+      expect(webResult).toEqual(nodeResult);
+      expect(webResult).toEqual(plaintext);
+    },
+  );
 
-  it('should handle block-aligned ciphertext with PKCS#7 padding consistently', async () => {
-    const encRawKey = new Uint8Array(16).fill(0xaa);
-    const iv = new Uint8Array(16).fill(0x42);
-    const plaintext = new Uint8Array(1024).fill(0xaa);
+  it.each(keyConfigs)(
+    'should handle block-aligned ciphertext with PKCS#7 padding consistently for %j',
+    async ({ keyBytes }) => {
+      const encRawKey = new Uint8Array(keyBytes).fill(0xaa);
+      const iv = new Uint8Array(16).fill(0x42);
+      const plaintext = new Uint8Array(1024).fill(0xaa);
 
-    // Encrypt using nodeCipher first
-    const ciphertext = await nodeCipher.encryptInternal({
-      encRawKey,
-      iv,
-      plaintext,
-    });
+      // Encrypt using nodeCipher first
+      const ciphertext = await nodeCipher.encryptInternal({
+        encRawKey,
+        iv,
+        plaintext,
+      });
 
-    const webResult = await webCipher.decryptInternal({
-      encRawKey,
-      iv,
-      ciphertext,
-    });
-    const nodeResult = await nodeCipher.decryptInternal({
-      encRawKey,
-      iv,
-      ciphertext,
-    });
+      const webResult = await webCipher.decryptInternal({
+        encRawKey,
+        iv,
+        ciphertext,
+      });
+      const nodeResult = await nodeCipher.decryptInternal({
+        encRawKey,
+        iv,
+        ciphertext,
+      });
 
-    expect(webResult).toEqual(nodeResult);
-    expect(webResult).toEqual(plaintext);
-  });
+      expect(webResult).toEqual(nodeResult);
+      expect(webResult).toEqual(plaintext);
+    },
+  );
 });

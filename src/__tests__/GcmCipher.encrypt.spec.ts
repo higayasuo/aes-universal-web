@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { WebGcmCipher } from '../WebGcmCipher';
-import { NodeGcmCipher } from './NodeGcmCipher';
+import { NodeGcmCipher } from 'expo-aes-universal-node';
 import { CryptoModule } from 'expo-crypto-universal';
+
+const keyConfigs = [
+  { enc: 'A128GCM' as const, keyBytes: 16 },
+  { enc: 'A192GCM' as const, keyBytes: 24 },
+  { enc: 'A256GCM' as const, keyBytes: 32 },
+] as const;
 
 describe('GcmCipher.encrypt', () => {
   let mockCryptoModule: CryptoModule;
@@ -18,10 +24,10 @@ describe('GcmCipher.encrypt', () => {
     nodeCipher = new NodeGcmCipher(mockCryptoModule);
   });
 
-  it.each(['A128GCM', 'A192GCM', 'A256GCM'] as const)(
-    'should produce the same result across all implementations for %s',
-    async (enc) => {
-      const cek = new Uint8Array(16).fill(0xaa);
+  it.each(keyConfigs)(
+    'should produce the same result across all implementations for %j',
+    async ({ enc, keyBytes }) => {
+      const cek = new Uint8Array(keyBytes).fill(0xaa);
       const plaintext = new Uint8Array([1, 2, 3]);
       const aad = new Uint8Array([4, 5, 6]);
 
@@ -44,10 +50,10 @@ describe('GcmCipher.encrypt', () => {
     },
   );
 
-  it.each(['A128GCM', 'A192GCM', 'A256GCM'] as const)(
-    'should handle empty plaintext consistently for %s',
-    async (enc) => {
-      const cek = new Uint8Array(16).fill(0xaa);
+  it.each(keyConfigs)(
+    'should handle empty plaintext consistently for %j',
+    async ({ enc, keyBytes }) => {
+      const cek = new Uint8Array(keyBytes).fill(0xaa);
       const plaintext = new Uint8Array(0);
       const aad = new Uint8Array([4, 5, 6]);
 
@@ -70,10 +76,10 @@ describe('GcmCipher.encrypt', () => {
     },
   );
 
-  it.each(['A128GCM', 'A192GCM', 'A256GCM'] as const)(
-    'should handle empty AAD consistently for %s',
-    async (enc) => {
-      const cek = new Uint8Array(16).fill(0xaa);
+  it.each(keyConfigs)(
+    'should handle empty AAD consistently for %j',
+    async ({ enc, keyBytes }) => {
+      const cek = new Uint8Array(keyBytes).fill(0xaa);
       const plaintext = new Uint8Array([1, 2, 3]);
       const aad = new Uint8Array(0);
 
