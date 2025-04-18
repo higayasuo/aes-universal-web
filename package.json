@@ -30,7 +30,7 @@
     "encryption",
     "web"
   ],
-  "author": "",
+  "author": "higayasuo",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.11.24",
