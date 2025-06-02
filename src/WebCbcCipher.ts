@@ -1,10 +1,10 @@
-import { CryptoModule } from 'expo-crypto-universal';
 import {
   AbstractCbcCipher,
   CbcDecryptInternalArgs,
   CbcEncryptInternalArgs,
   GenerateTagArgs,
-} from 'expo-aes-universal';
+  RandomBytes,
+} from 'aes-universal';
 
 /**
  * Class representing a Web-based CBC mode cipher.
@@ -14,10 +14,10 @@ import {
 export class WebCbcCipher extends AbstractCbcCipher {
   /**
    * Constructs a WebCbcCipher instance.
-   * @param cryptoModule - The crypto module to be used for cryptographic operations.
+   * @param randomBytes - The random bytes to be used for cryptographic operations.
    */
-  constructor(cryptoModule: CryptoModule) {
-    super(cryptoModule);
+  constructor(randomBytes: RandomBytes) {
+    super(randomBytes);
   }
 
   /**
@@ -25,11 +25,11 @@ export class WebCbcCipher extends AbstractCbcCipher {
    * @param args - The arguments required for encryption, including the raw encryption key, IV, and plaintext.
    * @returns A promise that resolves to the encrypted data as a Uint8Array.
    */
-  async encryptInternal({
+  encryptInternal = async ({
     encRawKey,
     iv,
     plaintext,
-  }: CbcEncryptInternalArgs): Promise<Uint8Array> {
+  }: CbcEncryptInternalArgs): Promise<Uint8Array> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
       encRawKey,
@@ -48,18 +48,18 @@ export class WebCbcCipher extends AbstractCbcCipher {
         plaintext,
       ),
     );
-  }
+  };
 
   /**
    * Performs the internal decryption process using the AES-CBC algorithm.
    * @param args - The arguments required for decryption, including the raw encryption key, IV, and ciphertext.
    * @returns A promise that resolves to the decrypted data as a Uint8Array.
    */
-  async decryptInternal({
+  decryptInternal = async ({
     encRawKey,
     iv,
     ciphertext,
-  }: CbcDecryptInternalArgs): Promise<Uint8Array> {
+  }: CbcDecryptInternalArgs): Promise<Uint8Array> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
       encRawKey,
@@ -71,18 +71,18 @@ export class WebCbcCipher extends AbstractCbcCipher {
     return new Uint8Array(
       await crypto.subtle.decrypt({ iv, name: 'AES-CBC' }, encKey, ciphertext),
     );
-  }
+  };
 
   /**
    * Generates a tag using the HMAC algorithm.
    * @param args - The arguments required for tag generation, including the raw MAC key, MAC data, and key bits.
    * @returns A promise that resolves to the generated tag as a Uint8Array.
    */
-  async generateTag({
+  generateTag = async ({
     macRawKey,
     macData,
     keyBits,
-  }: GenerateTagArgs): Promise<Uint8Array> {
+  }: GenerateTagArgs): Promise<Uint8Array> => {
     const macKey = await crypto.subtle.importKey(
       'raw',
       macRawKey,
@@ -100,5 +100,5 @@ export class WebCbcCipher extends AbstractCbcCipher {
         keyBits >> 3,
       ),
     );
-  }
+  };
 }

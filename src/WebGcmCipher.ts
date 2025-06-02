@@ -1,10 +1,10 @@
-import { CryptoModule } from 'expo-crypto-universal';
 import {
   AbstractGcmCipher,
   GcmDecryptInternalArgs,
   GcmEncryptInternalArgs,
   GcmEncryptInternalResult,
-} from 'expo-aes-universal';
+  RandomBytes,
+} from 'aes-universal';
 import { concatUint8Arrays } from '@higayasuo/u8a-utils';
 
 /**
@@ -15,10 +15,10 @@ import { concatUint8Arrays } from '@higayasuo/u8a-utils';
 export class WebGcmCipher extends AbstractGcmCipher {
   /**
    * Constructs a WebGcmCipher instance.
-   * @param cryptoModule - The crypto module to be used for cryptographic operations.
+   * @param randomBytes - The random bytes to be used for cryptographic operations.
    */
-  constructor(cryptoModule: CryptoModule) {
-    super(cryptoModule);
+  constructor(randomBytes: RandomBytes) {
+    super(randomBytes);
   }
 
   /**
@@ -26,12 +26,12 @@ export class WebGcmCipher extends AbstractGcmCipher {
    * @param args - The arguments required for encryption, including the raw encryption key, IV, plaintext, and additional authenticated data.
    * @returns A promise that resolves to the encrypted data as a Uint8Array.
    */
-  async encryptInternal({
+  encryptInternal = async ({
     encRawKey,
     iv,
     plaintext,
     aad,
-  }: GcmEncryptInternalArgs): Promise<GcmEncryptInternalResult> {
+  }: GcmEncryptInternalArgs): Promise<GcmEncryptInternalResult> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
       encRawKey,
@@ -57,20 +57,20 @@ export class WebGcmCipher extends AbstractGcmCipher {
       ciphertext: encrypted.slice(0, -16),
       tag: encrypted.slice(-16),
     };
-  }
+  };
 
   /**
    * Performs the internal decryption process using the AES-GCM algorithm.
    * @param args - The arguments required for decryption, including the raw encryption key, IV, ciphertext, and additional authenticated data.
    * @returns A promise that resolves to the decrypted data as a Uint8Array.
    */
-  async decryptInternal({
+  decryptInternal = async ({
     encRawKey,
     iv,
     ciphertext,
     tag,
     aad,
-  }: GcmDecryptInternalArgs): Promise<Uint8Array> {
+  }: GcmDecryptInternalArgs): Promise<Uint8Array> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
       encRawKey,
@@ -91,5 +91,5 @@ export class WebGcmCipher extends AbstractGcmCipher {
         concatUint8Arrays(ciphertext, tag),
       ),
     );
-  }
+  };
 }
