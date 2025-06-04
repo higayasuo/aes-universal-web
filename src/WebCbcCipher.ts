@@ -75,19 +75,19 @@ export class WebCbcCipher extends AbstractCbcCipher {
 
   /**
    * Generates a tag using the HMAC algorithm.
-   * @param args - The arguments required for tag generation, including the raw MAC key, MAC data, and key bits.
+   * @param args - The arguments required for tag generation, including the raw MAC key, MAC data, and the length of the key in bits.
    * @returns A promise that resolves to the generated tag as a Uint8Array.
    */
   generateTag = async ({
     macRawKey,
     macData,
-    keyBits,
+    keyBitLength,
   }: GenerateTagArgs): Promise<Uint8Array> => {
     const macKey = await crypto.subtle.importKey(
       'raw',
       macRawKey,
       {
-        hash: `SHA-${keyBits << 1}`,
+        hash: `SHA-${keyBitLength << 1}`,
         name: 'HMAC',
       },
       false,
@@ -97,7 +97,7 @@ export class WebCbcCipher extends AbstractCbcCipher {
     return new Uint8Array(
       (await crypto.subtle.sign('HMAC', macKey, macData)).slice(
         0,
-        keyBits >> 3,
+        keyBitLength >> 3,
       ),
     );
   };

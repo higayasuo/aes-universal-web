@@ -5,7 +5,7 @@ import {
   GcmEncryptInternalResult,
   RandomBytes,
 } from 'aes-universal';
-import { concatUint8Arrays } from '@higayasuo/u8a-utils';
+import { concatUint8Arrays } from 'u8a-utils';
 
 /**
  * Class representing a Web-based GCM cipher.

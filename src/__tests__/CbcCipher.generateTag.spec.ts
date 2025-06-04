@@ -3,9 +3,9 @@ import { WebCbcCipher } from '../WebCbcCipher';
 import { NodeCbcCipher } from 'aes-universal-node';
 
 const keyConfigs = [
-  { enc: 'A128CBC-HS256' as const, keyBits: 128 },
-  { enc: 'A192CBC-HS384' as const, keyBits: 192 },
-  { enc: 'A256CBC-HS512' as const, keyBits: 256 },
+  { enc: 'A128CBC-HS256' as const, keyBitLength: 128 },
+  { enc: 'A192CBC-HS384' as const, keyBitLength: 192 },
+  { enc: 'A256CBC-HS512' as const, keyBitLength: 256 },
 ] as const;
 
 describe('CbcCipher.generateTag', () => {
@@ -17,19 +17,19 @@ describe('CbcCipher.generateTag', () => {
 
   it.each(keyConfigs)(
     'should produce the same result across all implementations for %j',
-    async ({ keyBits }) => {
-      const macRawKey = new Uint8Array(keyBits / 8).fill(0xaa);
+    async ({ keyBitLength }) => {
+      const macRawKey = new Uint8Array(keyBitLength / 8).fill(0xaa);
       const macData = new Uint8Array([1, 2, 3]);
 
       const webResult = await webCipher.generateTag({
         macRawKey,
         macData,
-        keyBits,
+        keyBitLength,
       });
       const nodeResult = await nodeCipher.generateTag({
         macRawKey,
         macData,
-        keyBits,
+        keyBitLength,
       });
 
       expect(webResult).toEqual(nodeResult);
@@ -38,19 +38,19 @@ describe('CbcCipher.generateTag', () => {
 
   it.each(keyConfigs)(
     'should handle key size %j consistently',
-    async ({ keyBits }) => {
-      const macRawKey = new Uint8Array(keyBits / 8).fill(0xaa);
+    async ({ keyBitLength }) => {
+      const macRawKey = new Uint8Array(keyBitLength / 8).fill(0xaa);
       const macData = new Uint8Array([1, 2, 3]);
 
       const webResult = await webCipher.generateTag({
         macRawKey,
         macData,
-        keyBits,
+        keyBitLength,
       });
       const nodeResult = await nodeCipher.generateTag({
         macRawKey,
         macData,
-        keyBits,
+        keyBitLength,
       });
 
       expect(webResult).toEqual(nodeResult);
@@ -59,19 +59,19 @@ describe('CbcCipher.generateTag', () => {
 
   it.each(keyConfigs)(
     'should handle empty macData consistently for %j',
-    async ({ keyBits }) => {
-      const macRawKey = new Uint8Array(keyBits / 8).fill(0xaa);
+    async ({ keyBitLength }) => {
+      const macRawKey = new Uint8Array(keyBitLength / 8).fill(0xaa);
       const macData = new Uint8Array(0);
 
       const webResult = await webCipher.generateTag({
         macRawKey,
         macData,
-        keyBits,
+        keyBitLength,
       });
       const nodeResult = await nodeCipher.generateTag({
         macRawKey,
         macData,
-        keyBits,
+        keyBitLength,
       });
 
       expect(webResult).toEqual(nodeResult);
