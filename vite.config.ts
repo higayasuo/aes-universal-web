@@ -10,7 +10,7 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
-      external: ['aes-universal', '@higayasuo/u8a-utils'],
+      external: ['aes-universal', 'u8a-utils'],
     },
   },
   plugins: [

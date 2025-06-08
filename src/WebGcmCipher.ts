@@ -1,7 +1,7 @@
 import {
   AbstractGcmCipher,
-  GcmDecryptInternalArgs,
-  GcmEncryptInternalArgs,
+  GcmDecryptInternalParams,
+  GcmEncryptInternalParams,
   GcmEncryptInternalResult,
   RandomBytes,
 } from 'aes-universal';
@@ -31,7 +31,7 @@ export class WebGcmCipher extends AbstractGcmCipher {
     iv,
     plaintext,
     aad,
-  }: GcmEncryptInternalArgs): Promise<GcmEncryptInternalResult> => {
+  }: GcmEncryptInternalParams): Promise<GcmEncryptInternalResult> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
       encRawKey,
@@ -70,7 +70,7 @@ export class WebGcmCipher extends AbstractGcmCipher {
     ciphertext,
     tag,
     aad,
-  }: GcmDecryptInternalArgs): Promise<Uint8Array> => {
+  }: GcmDecryptInternalParams): Promise<Uint8Array> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
       encRawKey,

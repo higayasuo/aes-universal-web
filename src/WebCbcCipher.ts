@@ -1,8 +1,8 @@
 import {
   AbstractCbcCipher,
-  CbcDecryptInternalArgs,
-  CbcEncryptInternalArgs,
-  GenerateTagArgs,
+  CbcDecryptInternalParams,
+  CbcEncryptInternalParams,
+  GenerateTagParams,
   RandomBytes,
 } from 'aes-universal';
 
@@ -29,7 +29,7 @@ export class WebCbcCipher extends AbstractCbcCipher {
     encRawKey,
     iv,
     plaintext,
-  }: CbcEncryptInternalArgs): Promise<Uint8Array> => {
+  }: CbcEncryptInternalParams): Promise<Uint8Array> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
       encRawKey,
@@ -59,7 +59,7 @@ export class WebCbcCipher extends AbstractCbcCipher {
     encRawKey,
     iv,
     ciphertext,
-  }: CbcDecryptInternalArgs): Promise<Uint8Array> => {
+  }: CbcDecryptInternalParams): Promise<Uint8Array> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
       encRawKey,
@@ -82,7 +82,7 @@ export class WebCbcCipher extends AbstractCbcCipher {
     macRawKey,
     macData,
     keyBitLength,
-  }: GenerateTagArgs): Promise<Uint8Array> => {
+  }: GenerateTagParams): Promise<Uint8Array> => {
     const macKey = await crypto.subtle.importKey(
       'raw',
       macRawKey,
