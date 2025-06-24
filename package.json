@@ -1,6 +1,6 @@
 {
   "name": "aes-universal-web",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Web implementation of aes-universal",
   "main": "dist/index.cjs",
   "type": "module",
