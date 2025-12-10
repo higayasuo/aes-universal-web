@@ -1,6 +1,6 @@
 {
   "name": "aes-universal-web",
-  "version": "0.1.10",
+  "version": "0.1.15",
   "description": "Web implementation of aes-universal",
   "main": "dist/index.cjs",
   "type": "module",
@@ -42,7 +42,7 @@
   "devDependencies": {
     "@types/node": "^20.11.24",
     "@vitest/coverage-v8": "^1.3.1",
-    "aes-universal-node": "^0.1.10",
+    "aes-universal-node": "^0.1.15",
     "jsdom": "^26.1.0",
     "typescript": "^5.3.3",
     "vite": "^5.1.4",
@@ -50,7 +50,7 @@
     "vitest": "^1.3.1"
   },
   "peerDependencies": {
-    "aes-universal": "^0.1.10",
+    "aes-universal": "^0.1.15",
     "u8a-utils": "^1.0.7"
   }
 }

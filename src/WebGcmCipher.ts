@@ -3,7 +3,6 @@ import {
   GcmDecryptInternalParams,
   GcmEncryptInternalParams,
   GcmEncryptInternalResult,
-  RandomBytes,
 } from 'aes-universal';
 import { concatUint8Arrays } from 'u8a-utils';
 
@@ -13,14 +12,6 @@ import { concatUint8Arrays } from 'u8a-utils';
  * for web environments using the SubtleCrypto API.
  */
 export class WebGcmCipher extends AbstractGcmCipher {
-  /**
-   * Constructs a WebGcmCipher instance.
-   * @param randomBytes - The random bytes to be used for cryptographic operations.
-   */
-  constructor(randomBytes: RandomBytes) {
-    super(randomBytes);
-  }
-
   /**
    * Performs the internal encryption process using the AES-GCM algorithm.
    * @param args - The arguments required for encryption, including the raw encryption key, IV, plaintext, and additional authenticated data.
@@ -34,7 +25,7 @@ export class WebGcmCipher extends AbstractGcmCipher {
   }: GcmEncryptInternalParams): Promise<GcmEncryptInternalResult> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
-      encRawKey,
+      encRawKey as BufferSource,
       'AES-GCM',
       false,
       ['encrypt'],
@@ -43,13 +34,13 @@ export class WebGcmCipher extends AbstractGcmCipher {
     const encrypted = new Uint8Array(
       await crypto.subtle.encrypt(
         {
-          additionalData: aad,
-          iv,
+          additionalData: aad as BufferSource,
+          iv: iv as BufferSource,
           name: 'AES-GCM',
           tagLength: 128,
         },
         encKey,
-        plaintext,
+        plaintext as BufferSource,
       ),
     );
 
@@ -73,7 +64,7 @@ export class WebGcmCipher extends AbstractGcmCipher {
   }: GcmDecryptInternalParams): Promise<Uint8Array> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
-      encRawKey,
+      encRawKey as BufferSource,
       'AES-GCM',
       false,
       ['decrypt'],
@@ -82,13 +73,13 @@ export class WebGcmCipher extends AbstractGcmCipher {
     return new Uint8Array(
       await crypto.subtle.decrypt(
         {
-          additionalData: aad,
-          iv,
+          additionalData: aad as BufferSource,
+          iv: iv as BufferSource,
           name: 'AES-GCM',
           tagLength: 128,
         },
         encKey,
-        concatUint8Arrays(ciphertext, tag),
+        concatUint8Arrays(ciphertext, tag) as BufferSource,
       ),
     );
   };

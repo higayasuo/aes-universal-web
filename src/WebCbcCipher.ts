@@ -3,7 +3,6 @@ import {
   CbcDecryptInternalParams,
   CbcEncryptInternalParams,
   GenerateTagParams,
-  RandomBytes,
 } from 'aes-universal';
 
 /**
@@ -12,14 +11,6 @@ import {
  * for web environments using the SubtleCrypto API.
  */
 export class WebCbcCipher extends AbstractCbcCipher {
-  /**
-   * Constructs a WebCbcCipher instance.
-   * @param randomBytes - The random bytes to be used for cryptographic operations.
-   */
-  constructor(randomBytes: RandomBytes) {
-    super(randomBytes);
-  }
-
   /**
    * Performs the internal encryption process using the AES-CBC algorithm.
    * @param args - The arguments required for encryption, including the raw encryption key, IV, and plaintext.
@@ -32,7 +23,7 @@ export class WebCbcCipher extends AbstractCbcCipher {
   }: CbcEncryptInternalParams): Promise<Uint8Array> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
-      encRawKey,
+      encRawKey as BufferSource,
       'AES-CBC',
       false,
       ['encrypt'],
@@ -41,11 +32,11 @@ export class WebCbcCipher extends AbstractCbcCipher {
     return new Uint8Array(
       await crypto.subtle.encrypt(
         {
-          iv,
+          iv: iv as BufferSource,
           name: 'AES-CBC',
         },
         encKey,
-        plaintext,
+        plaintext as BufferSource,
       ),
     );
   };
@@ -62,14 +53,18 @@ export class WebCbcCipher extends AbstractCbcCipher {
   }: CbcDecryptInternalParams): Promise<Uint8Array> => {
     const encKey = await crypto.subtle.importKey(
       'raw',
-      encRawKey,
+      encRawKey as BufferSource,
       'AES-CBC',
       false,
       ['decrypt'],
     );
 
     return new Uint8Array(
-      await crypto.subtle.decrypt({ iv, name: 'AES-CBC' }, encKey, ciphertext),
+      await crypto.subtle.decrypt(
+        { iv: iv as BufferSource, name: 'AES-CBC' },
+        encKey,
+        ciphertext as BufferSource,
+      ),
     );
   };
 
@@ -85,7 +80,7 @@ export class WebCbcCipher extends AbstractCbcCipher {
   }: GenerateTagParams): Promise<Uint8Array> => {
     const macKey = await crypto.subtle.importKey(
       'raw',
-      macRawKey,
+      macRawKey as BufferSource,
       {
         hash: `SHA-${keyBitLength << 1}`,
         name: 'HMAC',
@@ -95,7 +90,7 @@ export class WebCbcCipher extends AbstractCbcCipher {
     );
 
     return new Uint8Array(
-      (await crypto.subtle.sign('HMAC', macKey, macData)).slice(
+      (await crypto.subtle.sign('HMAC', macKey, macData as BufferSource)).slice(
         0,
         keyBitLength >> 3,
       ),

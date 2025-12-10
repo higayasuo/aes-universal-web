@@ -1,4 +1,4 @@
-import { AesCipher, RandomBytes } from 'aes-universal';
+import { AesCipher } from 'aes-universal';
 import { WebCbcCipher } from './WebCbcCipher';
 import { WebGcmCipher } from './WebGcmCipher';
 
@@ -8,23 +8,21 @@ import { WebGcmCipher } from './WebGcmCipher';
  * This class extends the base AesCipher class and provides implementations
  * for both CBC and GCM modes using Web crypto functionality.
  */
-export class WebAesCipher extends AesCipher<
-  WebCbcCipher,
-  typeof WebCbcCipher,
-  WebGcmCipher,
-  typeof WebGcmCipher
-> {
+export class WebAesCipher extends AesCipher {
   /**
-   * Creates a new instance of WebAesCipher.
+   * Constructs a new instance of the WebAesCipher.
    *
-   * @param randomBytes - Function that generates cryptographically secure random bytes
-   *                      Must implement the RandomBytes interface from aes-universal
+   * Initializes the AES cipher with WebCrypto-based CBC and GCM cipher implementations.
    */
-  constructor(randomBytes: RandomBytes) {
+  constructor() {
     super({
-      cbc: WebCbcCipher,
-      gcm: WebGcmCipher,
-      randomBytes,
+      cbc: new WebCbcCipher(),
+      gcm: new WebGcmCipher(),
     });
   }
 }
+
+/**
+ * A singleton instance of {@link WebAesCipher}, providing WebCrypto-based AES encryption and decryption.
+ */
+export const webAesCipher = new WebAesCipher();
